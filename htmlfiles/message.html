@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message</title>
+</head>
+<body>
+    <form action="/message" method="POST" id="messageForm">
+        <input type="text" name="userMessage" id="userMessageInput" placeholder="Enter your message">
+        <button type="submit">Send Message</button>
+    </form>
+
+    <h2>Stored Usernames:</h2>
+    <ul id="storedUserNamesList"></ul>
+
+    <h2>File Contents:</h2>
+    <div id="fileContents"></div>
+
+    <script>
+        // Function to fetch the userName from localStorage
+        function getUserNameFromLocalStorage() {
+            return localStorage.getItem('userName');
+        }
+
+        // Function to display the stored usernames from localStorage
+        function displayStoredUserNames() {
+            const storedUserNamesJSON = localStorage.getItem('userNames');
+            const storedUserNames = JSON.parse(storedUserNamesJSON) || [];
+
+            const storedUserNamesList = document.getElementById('storedUserNamesList');
+
+            // Clear the previous list items
+            storedUserNamesList.innerHTML = '';
+
+            // Loop through the array and create list items for each username
+            storedUserNames.forEach(userName => {
+                const li = document.createElement('li');
+                li.textContent = userName;
+                storedUserNamesList.appendChild(li);
+            });
+        }
+
+        // Function to display the file contents on the screen
+        function displayFileContents(fileContents) {
+            const fileContentsElement = document.getElementById('fileContents');
+            fileContentsElement.textContent = fileContents;
+        }
+
+        // Call the display functions on page load
+        displayStoredUserNames();
+
+        // Event listener for the form submission
+        const messageForm = document.getElementById('messageForm');
+        messageForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const userMessage = document.getElementById('userMessageInput').value;
+            const userName = getUserNameFromLocalStorage();
+
+            // Sending the userMessage and userName in the POST request
+            fetch('/message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userMessage, userName })
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Message sent successfully.');
+                    return response.text(); // Read the response text (file contents) as a promise
+                } else {
+                    console.error('Error sending message.');
+                    throw new Error('Failed to send message.');
+                }
+            })
+            .then(fileContents => {
+                // Display the file contents on the screen
+                displayFileContents(fileContents);
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

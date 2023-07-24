@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+</head>
+<body>
+    <form action="/user/login" method="POST" id="loginForm">
+        <input type="text" name="userName" id="usernameid">
+        <button type="submit">login</button>
+    </form>
+
+    <h2>Stored Usernames:</h2>
+    <ul id="storedUserNamesList"></ul>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+
+        // Function to save the username to localStorage
+        function saveToLocalStorage() {
+            const userName = document.getElementById('usernameid').value;
+
+            // Retrieve the existing array of usernames or initialize an empty array
+            const storedUserNamesJSON = localStorage.getItem('userNames');
+            const storedUserNames = JSON.parse(storedUserNamesJSON) || [];
+
+            // Add the new username to the array
+            storedUserNames.push(userName);
+
+            // Save the updated array back to localStorage
+            localStorage.setItem('userNames', JSON.stringify(storedUserNames));
+
+            console.log('Username saved to localStorage:', userName);
+            displayStoredUserNames();
+        }
+
+        // Function to display the stored usernames from localStorage
+        function displayStoredUserNames() {
+            const storedUserNamesJSON = localStorage.getItem('userNames');
+            const storedUserNames = JSON.parse(storedUserNamesJSON) || [];
+
+            const storedUserNamesList = document.getElementById('storedUserNamesList');
+
+            // Clear the previous list items
+            storedUserNamesList.innerHTML = '';
+
+            // Loop through the array and create list items for each username
+            storedUserNames.forEach(userName => {
+                const li = document.createElement('li');
+                li.textContent = userName;
+                storedUserNamesList.appendChild(li);
+            });
+        }
+
+        // Call the display function on page load
+        displayStoredUserNames();
+
+        loginForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            saveToLocalStorage();
+        });
+    </script>
+</body>
+</html>
